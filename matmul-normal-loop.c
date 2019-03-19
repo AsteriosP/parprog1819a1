@@ -3,7 +3,7 @@
 
 #include <sys/time.h>
 
-void allocate_mem(float ** a, float ** b, float ** c);
+void alocate_mem(float ** a, float ** b, float ** c);
 void get_walltime(double *wct);
 
 int main(){
@@ -11,7 +11,7 @@ int main(){
     float *a, *b, *c, *pa, *pb, *pc;
     float sum = 0;
     double ts, te;
-    allocate_mem(&a, &b, &c);
+    alocate_mem(&a, &b, &c);
     // initialisation of arrays
     for(i = 0; i < N*N; i++){
         a[i] = 2.0;
@@ -22,14 +22,18 @@ int main(){
     get_walltime(&ts);  
     // payload
     pc = c;
-    for(k = 0; k < N; k++) { // for loop #1
+    for(k = 0; k < N; k++) {
         pb = b;
-        for(j = 0; j < N; j++){ // for loop #2
+        for(j = 0; j < N; j++){
             pa = a + k * N;
             sum = 0.0;
-            for (i = 0; i < N; i++) { // for loop #3
-                sum += (*pa) * (*pb);
-                pa++, pb++;
+            for (i = 0; i < N; i+=4) {
+                sum += (*(pa + 0)) * (*(pb + 0)) \
+                     + (*(pa + 1)) * (*(pb + 1)) \
+                     + (*(pa + 2)) * (*(pb + 2)) \
+                     + (*(pa + 3)) * (*(pb + 3));
+                pa += 4;
+                pb += 4;
             }
             *pc = sum;
             pc++;
@@ -52,7 +56,7 @@ int main(){
     return 0;
 }
 
-void allocate_mem(float ** a, float ** b, float ** c){
+void alocate_mem(float ** a, float ** b, float ** c){
     *a = (float *) malloc(sizeof(float) * N * N);
     if(!*a) {
         printf("Problem Alocating Memory\n");
